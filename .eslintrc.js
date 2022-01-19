@@ -18,6 +18,7 @@ module.exports = {
         'react'
     ],
     'rules': {
+        'max-len': ['error', { 'code': 120 }],
         'indent': [
             'error',
             4
