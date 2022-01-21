@@ -1,4 +1,7 @@
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
+import SockJsClient from 'react-stomp'
+
+const SOCKET_URL = 'http://10.0.0.21:8080/ws'
 
 export const MapContext = React.createContext({})
 
@@ -8,10 +11,18 @@ export default function MapContextProvider({ children }) {
     const [seekers, setSeekers] = useState([])
     const [finish, setFinish] = useState(null)
     const [mode, setMode] = useState('setup')
+    const clientRef = useRef(null)
+
+    const sendStartMessage = (msg) => {
+        clientRef.current.sendMessage('/ws/start', msg)
+    }
 
     const start = () => {
         if (mode !== 'setup') return
         setMode('starting')
+        sendStartMessage(JSON.stringify({
+            name: 'Matt'
+        }))
     }
 
     const stop = () => {
@@ -56,22 +67,47 @@ export default function MapContextProvider({ children }) {
         }
     }
 
+    const onConnected = () => {
+        console.log('Connected')
+    }
+    
+    const onMessageReceived = (message) => {
+        console.log(message)
+    }
+
+    const onDisconnect = () => {
+        console.log('Disconnected')
+    }
+
     return (
-        <MapContext.Provider value={{
-            selectionType,
-            seekers,
-            location,
-            finish,
-            mode,
-            addPin,
-            removePin,
-            setSelectionType,
-            setSeekers,
-            setLocation,
-            setFinish,
-            start,
-            stop,
-            clear,
-        }}>{children}</MapContext.Provider>
+        <>
+            <SockJsClient
+                url={SOCKET_URL}
+                topics={['/topic/updates']}
+                onConnect={onConnected}
+                onDisconnect={onDisconnect}
+                onMessage={onMessageReceived}
+                debug={false}
+                ref={clientRef}
+            />
+            <MapContext.Provider value={{
+                selectionType,
+                seekers,
+                location,
+                finish,
+                mode,
+                addPin,
+                removePin,
+                setSelectionType,
+                setSeekers,
+                setLocation,
+                setFinish,
+                start,
+                stop,
+                clear,
+            }}>
+                {children}
+            </MapContext.Provider>
+        </>
     )
 }
