@@ -12,6 +12,11 @@ export default function MapContextProvider({ children }) {
         console.log('start')
     }
 
+    const clear = () => {
+        setSeekers([])
+        setFinish(null)
+    }
+
     return (
         <MapContext.Provider value={{
             selectionType,
@@ -22,7 +27,8 @@ export default function MapContextProvider({ children }) {
             setSeekers,
             setLocation,
             setFinish,
-            start
+            start,
+            clear,
         }}>{children}</MapContext.Provider>
     )
 }

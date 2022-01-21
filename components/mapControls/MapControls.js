@@ -8,6 +8,7 @@ export default function MapControls() {
         selectionType,
         setSelectionType,
         start,
+        clear,
     } = useContext(MapContext)
 
     return (
@@ -29,6 +30,7 @@ export default function MapControls() {
                     onPress={() => setSelectionType('seeker')}
                     style={[
                         styles.button,
+                        { marginRight: 10 },
                         selectionType === 'seeker' && styles.pressedButton,
                         styles.flex
                     ]}>
@@ -36,11 +38,19 @@ export default function MapControls() {
                         style={ selectionType === 'seeker' && styles.pressedIcon }
                         name="person-pin-circle" size={24} color="black" />
                 </TouchableOpacity>
+                <TouchableOpacity
+                    onPress={clear}
+                    style={[
+                        styles.button,
+                        styles.flex
+                    ]}>
+                    <FontAwesome5 name="trash" size={24} color="black" />
+                </TouchableOpacity>
             </View>
             <View>
                 <TouchableOpacity style={[styles.button]} onPress={start}>
                     <Text style={[styles.text]}>
-                Start
+                        Start
                     </Text>
                 </TouchableOpacity>      
             </View>
