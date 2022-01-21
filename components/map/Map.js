@@ -1,22 +1,25 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import MapView, { Marker } from 'react-native-maps'
 import * as Location from 'expo-location'
 import { StyleSheet, Text, View } from 'react-native'
+import { MapContext } from '../../context/mapContext'
 
 export default function Map() {
-    const [location, setLocation] = useState(null)
     const [isPermissionGranted, setPermissionGranted] = useState(false)
-    const [seekers, setSeekers] = useState([])
-  
+
+    const {         
+        seekers,
+        setSeekers,
+        location,
+        setLocation,
+    } = useContext(MapContext)
+
     useEffect(() => {
         (async function getPermission() {
-            let { status } = await Location.requestForegroundPermissionsAsync()
-            if (status !== 'granted') {
-                setPermissionGranted(false)
-                return
+            const { status } = await Location.requestForegroundPermissionsAsync()
+            if (status === 'granted') {
+                setPermissionGranted(true)
             }
-
-            setPermissionGranted(true)
         })()
     }, [])
 

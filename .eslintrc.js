@@ -18,6 +18,7 @@ module.exports = {
         'react'
     ],
     'rules': {
+        'react/prop-types': 'off',
         'max-len': ['error', { 'code': 120 }],
         'indent': [
             'error',
