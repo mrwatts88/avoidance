@@ -8,10 +8,13 @@ export default function Map() {
     const [isPermissionGranted, setPermissionGranted] = useState(false)
 
     const {         
+        selectionType,
         seekers,
         setSeekers,
         location,
         setLocation,
+        finish,
+        setFinish,
     } = useContext(MapContext)
 
     useEffect(() => {
@@ -38,10 +41,15 @@ export default function Map() {
     }, [isPermissionGranted])
 
     const onMapPress = (e) => {
-        const copy = [...seekers]
-        copy.push(e.nativeEvent.coordinate)
+        const newPosition = e.nativeEvent.coordinate
 
-        setSeekers(copy)
+        if (selectionType === 'seeker') {
+            const copy = [...seekers]
+            copy.push(newPosition)
+            setSeekers(copy)
+        } else if (selectionType === 'finish') {
+            setFinish(newPosition)
+        }
     }
 
     const { coords } = location || {}
@@ -67,17 +75,24 @@ export default function Map() {
                 >
                     <Marker
                         coordinate={{ latitude, longitude }}
-                        title="You"
+                        title='You'
                         pinColor='blue'
                     />
                     {seekers.map((s, i) => (
                         <Marker
                             key={i}
                             coordinate={{ latitude: s.latitude, longitude: s.longitude }}
-                            title="Seeker"
+                            title='Seeker'
                             pinColor='red'
                         />
                     ))}
+                    {finish ? (
+                        <Marker
+                            coordinate={{ latitude: finish.latitude, longitude: finish.longitude }}
+                            title='Finish'
+                            pinColor='green'
+                        />
+                    ): null}
                 </MapView>)}
         </View>
     )

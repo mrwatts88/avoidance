@@ -4,8 +4,9 @@ export const MapContext = React.createContext({})
 
 export default function MapContextProvider({ children }) {
     const [selectionType, setSelectionType] = useState('finish')
-    const [seekers, setSeekers] = useState([])
     const [location, setLocation] = useState(null)
+    const [seekers, setSeekers] = useState([])
+    const [finish, setFinish] = useState(null)
 
     const start = () => {
         console.log('start')
@@ -14,11 +15,13 @@ export default function MapContextProvider({ children }) {
     return (
         <MapContext.Provider value={{
             selectionType,
-            setSelectionType,
             seekers,
-            setSeekers,
             location,
+            finish,
+            setSelectionType,
+            setSeekers,
             setLocation,
+            setFinish,
             start
         }}>{children}</MapContext.Provider>
     )
