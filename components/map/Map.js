@@ -8,21 +8,18 @@ export default function Map() {
     const [isPermissionGranted, setPermissionGranted] = useState(false)
 
     const {         
-        selectionType,
+        addPin,
+        removePin,
         seekers,
-        setSeekers,
         location,
         setLocation,
         finish,
-        setFinish,
     } = useContext(MapContext)
 
     useEffect(() => {
         (async function getPermission() {
             const { status } = await Location.requestForegroundPermissionsAsync()
-            if (status === 'granted') {
-                setPermissionGranted(true)
-            }
+            if (status === 'granted') setPermissionGranted(true)
         })()
     }, [])
 
@@ -40,20 +37,14 @@ export default function Map() {
         return () => clearInterval(interval)
     }, [isPermissionGranted])
 
-    const onMapPress = (e) => {
-        const newPosition = e.nativeEvent.coordinate
-
-        if (selectionType === 'seeker') {
-            const copy = [...seekers]
-            copy.push(newPosition)
-            setSeekers(copy)
-        } else if (selectionType === 'finish') {
-            setFinish(newPosition)
-        }
+    const onMapPress = ({ nativeEvent }) => {
+        const { action, coordinate } = nativeEvent
+        if (action === 'marker-press') removePin(coordinate)
+        else if (!action) addPin(coordinate) 
     }
 
     const { coords } = location || {}
-    const { latitude, longitude} = coords || {}
+    const { latitude, longitude } = coords || {}
 
     return (
         <View style={styles.mapContainer}>
@@ -62,10 +53,7 @@ export default function Map() {
             ) : (
                 <MapView
                     onPress={onMapPress}
-                    style={{
-                        width: '100%',
-                        height: '100%'
-                    }}
+                    style={{ width: '100%', height: '100%' }}
                     region={{
                         latitude,
                         longitude,
@@ -73,26 +61,20 @@ export default function Map() {
                         longitudeDelta: 0.05,
                     }}
                 >
-                    <Marker
-                        coordinate={{ latitude, longitude }}
-                        title='You'
-                        pinColor='blue'
-                    />
+                    <Marker coordinate={{ latitude, longitude }} pinColor='blue' />
                     {seekers.map((s, i) => (
                         <Marker
                             key={i}
                             coordinate={{ latitude: s.latitude, longitude: s.longitude }}
-                            title='Seeker'
                             pinColor='red'
                         />
                     ))}
                     {finish ? (
                         <Marker
                             coordinate={{ latitude: finish.latitude, longitude: finish.longitude }}
-                            title='Finish'
                             pinColor='green'
                         />
-                    ): null}
+                    ) : null}
                 </MapView>)}
         </View>
     )
