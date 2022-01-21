@@ -14,6 +14,7 @@ export default function Map() {
         location,
         setLocation,
         finish,
+        mode
     } = useContext(MapContext)
 
     useEffect(() => {
@@ -23,19 +24,26 @@ export default function Map() {
         })()
     }, [])
 
+    async function getLocation() {
+        const location = await Location.getCurrentPositionAsync({})
+        setLocation(location)
+    }
+
     useEffect(() => {
         if (!isPermissionGranted) return
-
-        async function getLocation() {
-            const location = await Location.getCurrentPositionAsync({})
-            setLocation(location)
-        }
-
         getLocation()
-        const interval = setInterval(getLocation, 1000)
+    }, [isPermissionGranted])
+
+    useEffect(() => {
+        let interval
+        if (['starting', 'inProgress'].includes(mode)) {
+            if (!interval) {
+                interval = setInterval(getLocation, 1000)
+            }
+        } else if (mode === 'setup') clearInterval(interval)
 
         return () => clearInterval(interval)
-    }, [isPermissionGranted])
+    }, [mode])
 
     const onMapPress = ({ nativeEvent }) => {
         const { action, coordinate } = nativeEvent
@@ -54,7 +62,13 @@ export default function Map() {
                 <MapView
                     onPress={onMapPress}
                     style={{ width: '100%', height: '100%' }}
-                    region={{
+                    region={['starting', 'inProgress'].includes(mode) ? {
+                        latitude,
+                        longitude,
+                        latitudeDelta: 0.001,
+                        longitudeDelta: 0.001,
+                    }: undefined}
+                    initialRegion={{
                         latitude,
                         longitude,
                         latitudeDelta: 0.03,

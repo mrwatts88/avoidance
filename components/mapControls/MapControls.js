@@ -8,14 +8,19 @@ export default function MapControls() {
         selectionType,
         setSelectionType,
         start,
+        stop,
         clear,
+        mode,
     } = useContext(MapContext)
+
+    const playing = ['starting', 'inProgress'].includes(mode)
 
     return (
         <View>
             <View style={styles.buttonContainerUpper}>
                 <TouchableOpacity                    
                     onPress={() => setSelectionType('finish')}
+                    disabled={mode !== 'setup'}
                     style={[
                         styles.button,
                         selectionType === 'finish' && styles.pressedButton,
@@ -27,6 +32,7 @@ export default function MapControls() {
                         name="flag-checkered" size={24} color="black" />
                 </TouchableOpacity>
                 <TouchableOpacity
+                    disabled={mode !== 'setup'}
                     onPress={() => setSelectionType('seeker')}
                     style={[
                         styles.button,
@@ -39,6 +45,7 @@ export default function MapControls() {
                         name="person-pin-circle" size={24} color="black" />
                 </TouchableOpacity>
                 <TouchableOpacity
+                    disabled={mode !== 'setup'}
                     onPress={clear}
                     style={[
                         styles.button,
@@ -47,12 +54,32 @@ export default function MapControls() {
                     <FontAwesome5 name="trash" size={24} color="black" />
                 </TouchableOpacity>
             </View>
-            <View>
-                <TouchableOpacity style={[styles.button]} onPress={start}>
-                    <Text style={[styles.text]}>
+            <View style={styles.buttonContainerLower}>
+                <TouchableOpacity
+                    disabled={mode !== 'setup'}
+                    style={[
+                        styles.button,
+                        styles.flex,
+                        {marginRight: 10},
+                        mode !== 'setup' && styles.pressedButton
+                    ]}
+                    onPress={start}>
+                    <Text style={[styles.text, mode !== 'setup' && styles.pressedText]}>
                         Start
                     </Text>
-                </TouchableOpacity>      
+                </TouchableOpacity>
+                <TouchableOpacity
+                    disabled={!playing}
+                    style={[
+                        styles.button,
+                        styles.flex,
+                        !playing && styles.pressedButton
+                    ]}
+                    onPress={stop}>
+                    <Text style={[styles.text, !playing && styles.pressedText]}>
+                        Stop
+                    </Text>
+                </TouchableOpacity>
             </View>
         </View>
     )
@@ -64,6 +91,11 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         marginVertical: 10
+    },
+    buttonContainerLower: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
     },
     flex: {
         flex: 1,
@@ -82,6 +114,9 @@ const styles = StyleSheet.create({
     },
     pressedButton: {
         backgroundColor: 'black',
+    },
+    pressedText: {
+        color: 'white',
     },
     pressedIcon: {
         color: 'white',

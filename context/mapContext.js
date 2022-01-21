@@ -7,17 +7,28 @@ export default function MapContextProvider({ children }) {
     const [location, setLocation] = useState(null)
     const [seekers, setSeekers] = useState([])
     const [finish, setFinish] = useState(null)
+    const [mode, setMode] = useState('setup')
 
     const start = () => {
-        console.log('start')
+        if (mode !== 'setup') return
+        setMode('starting')
+    }
+
+    const stop = () => {
+        if (['starting', 'inProgress'].includes(mode)) {
+            setMode('setup')
+        }
     }
 
     const clear = () => {
+        if (mode !== 'setup') return
         setSeekers([])
         setFinish(null)
     }
 
     const removePin = ({ latitude , longitude }) => {
+        if (mode !== 'setup') return
+
         if (selectionType === 'seeker') {
             const existingMarkerIdx = seekers.findIndex((s) => s.latitude === latitude && s.longitude === longitude)
 
@@ -34,6 +45,8 @@ export default function MapContextProvider({ children }) {
     }
 
     const addPin = (seeker) => {
+        if (mode !== 'setup') return
+
         if (selectionType === 'seeker') {
             const copy = [...seekers]
             copy.push(seeker)
@@ -49,6 +62,7 @@ export default function MapContextProvider({ children }) {
             seekers,
             location,
             finish,
+            mode,
             addPin,
             removePin,
             setSelectionType,
@@ -56,6 +70,7 @@ export default function MapContextProvider({ children }) {
             setLocation,
             setFinish,
             start,
+            stop,
             clear,
         }}>{children}</MapContext.Provider>
     )
