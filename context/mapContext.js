@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react'
 import SockJsClient from 'react-stomp'
+import uuid from 'react-native-uuid'
 
 const SOCKET_URL = 'http://10.0.0.21:8080/ws'
 
@@ -12,22 +13,25 @@ export default function MapContextProvider({ children }) {
     const [finish, setFinish] = useState(null)
     const [mode, setMode] = useState('setup')
     const clientRef = useRef(null)
+    const [stateId, setStateId] = useState(uuid.v4())
 
     const sendStartMessage = (msg) => {
-        clientRef.current.sendMessage('/ws/start', msg)
+        clientRef.current.sendMessage(`/ws/start/${stateId}`, msg)
     }
 
     const start = () => {
         if (mode !== 'setup') return
         setMode('starting')
         sendStartMessage(JSON.stringify({
-            name: 'Matt'
+            seekers
         }))
     }
 
     const stop = () => {
         if (['starting', 'inProgress'].includes(mode)) {
             setMode('setup')
+            clientRef.current.sendMessage(`/ws/stop/${stateId}`)
+            setStateId(null)
         }
     }
 
@@ -83,7 +87,7 @@ export default function MapContextProvider({ children }) {
         <>
             <SockJsClient
                 url={SOCKET_URL}
-                topics={['/topic/updates']}
+                topics={[`/topic/updates/${stateId}`]}
                 onConnect={onConnected}
                 onDisconnect={onDisconnect}
                 onMessage={onMessageReceived}
